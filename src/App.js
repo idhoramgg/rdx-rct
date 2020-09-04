@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import {connect} from 'react-redux';
 
 
 import store from './store';
@@ -17,37 +18,17 @@ import {
   addOneCappucino,
   addOneCoffeeMocha
 } from './actions/saldoAction'
-function App() {
-  
- const products = store.getState().product;
- let { saldo } = store.getState().saldo;
 
- const [product, setProducts] = useState(products)
- const [saldoo, setSaldo] = useState(saldo)
- console.log(product);
- console.log(saldoo);
+import {
+  getAllCustomers
+} from './actions/customersAction';
 
-  useEffect(() => {
-    const products = store.getState().product;
-    let { saldo } = store.getState().saldo;
-
-    const product = products
-    const saldoo = saldo
-
-    setProducts(product)
-    setSaldo(saldoo)
-
-    store.subscribe(() => {
-      const products = store.getState().product;;
-      let { saldo } = store.getState().saldo;
-   
-      const product = products
-      const saldoo = saldo
-
-      setProducts(product)
-      setSaldo(saldoo)
-    });
-  }, [])
+function App(props) {
+  const {product, saldo, customers} = props
+ 
+ useEffect(() => {
+   props.getCustomers()
+  },[])
 
   const handleOrderCap = () => {
     store.dispatch(buyOneCappucino)
@@ -72,14 +53,20 @@ function App() {
       <h1>Toko Kopi Impact</h1>
       <div className="head">
         <div className="topleft">Delete</div>
-        <div className="topright">Rp.{saldo}</div>
+        <div className="topright">Rp.{saldo.saldo}</div>
       </div>
       <h1>Products</h1>
       <div className="product">
-          <h3 onClick={handleOrderCap}>Cappucino ({products.cappucino.stock}) Rp.{products.cappucino.price} </h3>
-          <h3 onClick={handleOrderCC}>Chocolate ({products.chocolate.stock}) Rp.{products.chocolate.price} </h3>
-          <h3 onClick={handleOrderTea}>Tea ({products.tea.stock}) Rp.{products.tea.price} </h3>
-          <h3 onClick={handleOrderCM}>Coffee Mocha ({products.coffeeMocha.stock}) Rp.{products.coffeeMocha.price} </h3>
+          <h3 onClick={handleOrderCap}>Cappucino ({product.cappucino.stock}) Rp.{product.cappucino.price} </h3>
+          <h3 onClick={handleOrderCC}>Chocolate ({product.chocolate.stock}) Rp.{product.chocolate.price} </h3>
+          <h3 onClick={handleOrderTea}>Tea ({product.tea.stock}) Rp.{product.tea.price} </h3>
+          <h3 onClick={handleOrderCM}>Coffee Mocha ({product.coffeeMocha.stock}) Rp.{product.coffeeMocha.price} </h3>
+      </div>
+      <div>
+      {customers.map((data, index) => <li key={index}>
+        {data.name}
+      </li>)}
+
       </div>
 
 
@@ -87,4 +74,17 @@ function App() {
   );
 }
 
-export default App;
+const mtsp = (state) => {
+  return {
+    product: state.product,
+    saldo: state.saldo,
+    customers: state.customers
+  }
+}
+const mdsp = (dispatch) => {
+  return {
+    getCustomers : () => dispatch(getAllCustomers())
+  }
+}
+
+export default connect(mtsp, mdsp)(App);
